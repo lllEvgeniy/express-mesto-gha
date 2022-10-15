@@ -1,8 +1,9 @@
+const mongoose = require('mongoose');
 const Card = require('../models/card');
 
 const {
   BAD_REQUEST,
-  INTERNAL_SERVER_ERROR,
+  SERVER_ERROR,
   ERROR_MESSAGE,
 } = require('../utils/constants');
 
@@ -18,7 +19,9 @@ const createCards = (req, res) => {
       if (err instanceof mongoose.Error.ValidationError) {
         return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.CREATE_CARDS_ERROR });
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
+      return res.status(SERVER_ERROR).send({
+        message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR,
+      });
     });
 };
 
@@ -28,7 +31,7 @@ const getCards = (req, res) => {
       res.send({ data: cards });
     })
     .catch(() => {
-      res.status(INTERNAL_SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
+      res.status(SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
     });
 };
 
@@ -41,7 +44,10 @@ const deleteCardById = (req, res) => {
       if (err instanceof mongoose.Error.CastError) {
         return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.NOT_FOUND_CARDSID });
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
+      return res.status(SERVER_ERROR)
+        .send({
+          message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR,
+        });
     });
 };
 
@@ -60,7 +66,7 @@ const likeCard = (req, res) => Card.findByIdAndUpdate(
     if (err instanceof mongoose.Error.CastError) {
       return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.LIKE_CARDID_DATA_ERROR });
     }
-    return res.status(INTERNAL_SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
+    return res.status(SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
   });
 
 const dislikeCard = (req, res) => Card.findByIdAndUpdate(
@@ -78,7 +84,7 @@ const dislikeCard = (req, res) => Card.findByIdAndUpdate(
     if (err instanceof mongoose.Error.CastError) {
       return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.LIKE_CARDID_DATA_ERROR });
     }
-    return res.status(INTERNAL_SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
+    return res.status(SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
   });
 
 module.exports = {
