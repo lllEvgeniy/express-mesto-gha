@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Card = require('../models/card');
 
 const {
+  NOT_FOUND,
   BAD_REQUEST,
   SERVER_ERROR,
   ERROR_MESSAGE,
@@ -38,7 +39,10 @@ const getCards = (req, res) => {
 const deleteCardById = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
-      res.send({ data: card });
+      if (!card) {
+        return res.status(NOT_FOUND).send({ message: ERROR_MESSAGE.NOT_FOUND_CARDSID });
+      }
+      return res.send({ data: card });
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
