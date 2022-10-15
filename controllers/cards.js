@@ -61,7 +61,10 @@ const likeCard = (req, res) => Card.findByIdAndUpdate(
   { new: true },
 )
   .then((card) => {
-    res.send({ data: card });
+    if (!card) {
+      return res.status(NOT_FOUND).send({ message: ERROR_MESSAGE.NOT_FOUND_CARDSID });
+    }
+    return res.send({ data: card });
   })
   .catch((err) => {
     if (err.name === 'ValidationError') {
@@ -79,7 +82,10 @@ const dislikeCard = (req, res) => Card.findByIdAndUpdate(
   { new: true },
 )
   .then((card) => {
-    res.send({ data: card });
+    if (!card) {
+      return res.status(NOT_FOUND).send({ message: ERROR_MESSAGE.NOT_FOUND_CARDSID });
+    }
+    return res.send({ data: card });
   })
   .catch((err) => {
     if (err.name === 'ValidationError') {
