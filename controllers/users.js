@@ -60,7 +60,7 @@ const updateUser = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.PATCH_VALIDATION_ERROR });
+        return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.PATCH_BAD_REQUEST });
       }
       if (err.message === 'NotFound') {
         return res.status(NOT_FOUND).send({ message: ERROR_MESSAGE.NOT_FOUND_USERID });

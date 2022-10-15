@@ -1,6 +1,6 @@
 const NOT_FOUND = 404;
 const BAD_REQUEST = 400;
-const INTERNAL_SERVER_ERROR = 500;
+const SERVER_ERROR = 500;
 const ERROR_MESSAGE = {
   INTERNAL_SERVER_ERROR: 'ошибка по-умолчанию',
   CREATE_USER_ERROR: 'Переданы некорректные данные в методы создания пользователя',
@@ -14,6 +14,6 @@ const ERROR_MESSAGE = {
 module.exports = {
   NOT_FOUND,
   BAD_REQUEST,
-  INTERNAL_SERVER_ERROR,
+  SERVER_ERROR,
   ERROR_MESSAGE,
 };
