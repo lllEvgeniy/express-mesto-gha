@@ -46,7 +46,7 @@ const deleteCardById = (req, res) => {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.NOT_FOUND_CARDSID });
+        return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.INCORRECT_CARDSID });
       }
       return res.status(SERVER_ERROR)
         .send({
