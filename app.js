@@ -7,13 +7,13 @@ const app = express();
 
 app.use(express.json());
 app.disable('x-powered-by');
-app.use((req, res, next) => {
-  req.user = {
-    _id: '63499f39bfb9da8e1d5e9949',
-  };
+// app.use((req, res, next) => {
+//   req.user = {
+//     _id: '63499f39bfb9da8e1d5e9949',
+//   };
 
-  next();
-});
+//   next();
+// });
 
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));

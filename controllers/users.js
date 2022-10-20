@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 const {
@@ -17,7 +19,20 @@ const getUser = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  User.create({ name: req.body.name, about: req.body.about, avatar: req.body.avatar })
+  bcrypt.hash(req.body.password, 10);
+  bcrypt.hash(req.body.password, 10)
+    .then((hash) => User.create({
+      email: req.body.email,
+      password: hash,
+    }));
+
+  User.create({
+    name: req.body.name,
+    about: req.body.about,
+    avatar: req.body.avatar,
+    email: req.body.email,
+    password: req.body.password,
+  })
 
     .then((user) => {
       res.status(201).send(user);
@@ -93,10 +108,42 @@ const updateAvatar = (req, res) => {
     });
 };
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+  User.findOne({ email })
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+      return bcrypt.compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            return Promise.reject(new Error('Неправильные почта или пароль'));
+          }
+          return res.send({ token: jwt.sign({ _id: User._id }, 'some-secret-key', { expiresIn: '7d' }) });
+        });
+    })
+    .catch((err) => {
+      res
+        .status(401)
+        .send({ message: err.message });
+    });
+};
+
+const currentUser = (req, res) => {
+  User.find({})
+    .then((users) => {
+      res.send({ users });
+    })
+    .catch(() => res.status('123').send({ message: '123' }));
+};
+
 module.exports = {
   createUser,
   getUser,
   getUserById,
   updateUser,
   updateAvatar,
+  login,
+  currentUser,
 };
