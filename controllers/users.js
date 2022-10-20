@@ -131,11 +131,27 @@ const login = (req, res) => {
 };
 
 const currentUser = (req, res) => {
-  User.find({})
-    .then((users) => {
-      res.send({ users });
-    })
-    .catch(() => res.status('123').send({ message: '123' }));
+  User.findById(
+    req.user._id,
+    {
+      name: req.body.name,
+      about: req.body.about,
+    },
+    {
+      new: true,
+      runValidators: true,
+    },
+  ).orFail(new Error('NotFound'))
+    .then((user) => res.send({ data: user }))
+    .catch((err) => {
+      if (err instanceof mongoose.Error.ValidationError) {
+        return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.PATCH_BAD_REQUEST });
+      }
+      if (err.message === 'NotFound') {
+        return res.status(NOT_FOUND).send({ message: ERROR_MESSAGE.NOT_FOUND_USERID });
+      }
+      return res.status(SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
+    });
 };
 
 module.exports = {
