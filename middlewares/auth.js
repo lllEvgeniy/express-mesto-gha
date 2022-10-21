@@ -20,9 +20,9 @@ function auth(req, res, next) {
       .send({ message: 'Необходима авторизация' });
   }
 
-  req.user = payload; // записываем пейлоуд в объект запроса
+  req.user = payload;
 
-  return next(); // пропускаем запрос дальше
+  return next();
 }
 
 module.exports = auth;

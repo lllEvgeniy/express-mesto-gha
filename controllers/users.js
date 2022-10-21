@@ -18,31 +18,23 @@ const getUser = (req, res) => {
     .catch(() => res.status(SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR }));
 };
 
-const createUser = (req, res) => {
-  bcrypt.hash(req.body.password, 10);
-  bcrypt.hash(req.body.password, 10)
-    .then((hash) => User.create({
+const createUser = async (req, res) => {
+  try {
+    const hashedPwd = await bcrypt.hash(req.body.password, 10);
+    const insertResult = await User.create({
+      about: req.body.about,
+      name: req.body.name,
+      avatar: req.body.avatar,
       email: req.body.email,
-      password: hash,
-    }));
-
-  User.create({
-    name: req.body.name,
-    about: req.body.about,
-    avatar: req.body.avatar,
-    email: req.body.email,
-    password: req.body.password,
-  })
-
-    .then((user) => {
-      res.status(201).send(user);
-    })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.CREATE_USER_ERROR });
-      }
-      return res.status(SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
+      password: hashedPwd,
     });
+    return res.send(insertResult);
+  } catch (err) {
+    if (err instanceof mongoose.Error.ValidationError) {
+      return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.CREATE_USER_ERROR });
+    }
+    return res.status(SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
+  }
 };
 
 const getUserById = (req, res) => {
