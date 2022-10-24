@@ -18,23 +18,22 @@ const getUser = (req, res) => {
     .catch(() => res.status(SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR }));
 };
 
-const createUser = async (req, res) => {
-  try {
-    const hashedPwd = await bcrypt.hash(req.body.password, 10);
-    const insertResult = await User.create({
+const createUser = (req, res) => {
+  bcrypt.hash(req.body.password, 10)
+    .then((hash) => User.create({
       about: req.body.about,
       name: req.body.name,
       avatar: req.body.avatar,
       email: req.body.email,
-      password: hashedPwd,
+      password: hash,
+    }))
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err instanceof mongoose.Error.ValidationError) {
+        return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.CREATE_USER_ERROR });
+      }
+      return res.status(SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
     });
-    return res.send(insertResult);
-  } catch (err) {
-    if (err instanceof mongoose.Error.ValidationError) {
-      return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.CREATE_USER_ERROR });
-    }
-    return res.status(SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
-  }
 };
 
 const getUserById = (req, res) => {
@@ -102,7 +101,7 @@ const updateAvatar = (req, res) => {
 
 const login = (req, res) => {
   const { email, password } = req.body;
-  User.findOne({ email })
+  User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
         return Promise.reject(new Error('Неправильные почта или пароль'));
