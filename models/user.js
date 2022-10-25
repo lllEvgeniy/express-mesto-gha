@@ -21,23 +21,29 @@ const userSchema = new Schema({
   avatar: {
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
-  },
-    email: {
-      type: String,
-      unique: true,
-      required: true,
-      validate: {
-        validator: (v) => isEmail(v),
-        message: 'Неправильный формат почты',
+    validate: {
+      validator(v) {
+        return RegExp.test(v);
       },
+      message: 'Неправильный формат ссылки',
     },
-    password: {
-      type: String,
-      required: true,
-      select: false,
+  },
+  email: {
+    type: String,
+    unique: true,
+    required: true,
+    validate: {
+      validator: (v) => isEmail(v),
+      message: 'Неправильный формат почты',
     },
+  },
+  password: {
+    type: String,
+    required: true,
+    select: false,
+  },
 
-  }, {
+}, {
   versionKey: false,
 });
 

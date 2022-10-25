@@ -40,12 +40,12 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.code === 11000) {
-        return next(new ExistEmail(ERROR_MESSAGE.EXIST_EMAIL));
+        next(new ExistEmail(ERROR_MESSAGE.EXIST_EMAIL));
       }
-      if (err instanceof mongoose.Error.CastError) {
-        return next(new BadRequest(ERROR_MESSAGE.PATCH_BAD_REQUEST));
+      if ( (err.name === 'ValidationError')) {
+        next(new BadRequest(ERROR_MESSAGE.PATCH_BAD_REQUEST));
       }
-      return next(err);
+      next(err);
     });
 };
 
@@ -130,7 +130,7 @@ const login = (req, res, next) => {
             httpOnly: true,
             sameSite: true,
           })
-            .send({ token: token });
+            .send({ token });
         });
     })
     .catch(next);
