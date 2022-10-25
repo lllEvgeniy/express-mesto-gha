@@ -1,7 +1,6 @@
-const { celebrate } = require('celebrate');
+const { errors, celebrate, Joi } = require('celebrate');
 const express = require('express');
 const mongoose = require('mongoose');
-const { Joi } = require('celebrate');
 
 const { createUser, login } = require('./controllers/users');
 
@@ -19,7 +18,7 @@ app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required().min(7),
-  }),
+  }).unknown(true),
 }), login);
 app.post('/signup', celebrate({
   body: Joi.object().keys({
@@ -28,12 +27,14 @@ app.post('/signup', celebrate({
     name: Joi.string().min(2).max(30),
     avatar: Joi.string(),
     about: Joi.string().min(2).max(30),
-  }),
+  }).unknown(true),
 }), createUser);
 
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Не найдено' });
 });
+
+app.use(errors());
 
 app.use((err, req, res) => {
   const { statusCode = 500, message } = err;
