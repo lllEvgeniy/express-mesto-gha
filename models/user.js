@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const isEmail = require('validator/lib/isEmail');
 
-const RegExp = /https?:\/\/[\w-]+.[a-z.]+[/*[a-z#]+]?/gim;
+const RegExp = /^((ftp|http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Яа-я0-9-]*\.?)*\.{1}[A-Za-zА-Яа-я0-9-]{2,8}(\/([\w#!:.?+=&%@!\-/])*)?/gim;
 
 const { Schema } = mongoose;
 
@@ -21,29 +21,23 @@ const userSchema = new Schema({
   avatar: {
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
-    validate: {
-      validator(v) {
-        return RegExp.test(v);
+  },
+    email: {
+      type: String,
+      unique: true,
+      required: true,
+      validate: {
+        validator: (v) => isEmail(v),
+        message: 'Неправильный формат почты',
       },
-      message: 'Неправильный формат ссылки',
     },
-  },
-  email: {
-    type: String,
-    unique: true,
-    required: true,
-    validate: {
-      validator: (v) => isEmail(v),
-      message: 'Неправильный формат почты',
+    password: {
+      type: String,
+      required: true,
+      select: false,
     },
-  },
-  password: {
-    type: String,
-    required: true,
-    select: false,
-  },
 
-}, {
+  }, {
   versionKey: false,
 });
 

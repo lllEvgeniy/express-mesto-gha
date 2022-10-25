@@ -5,6 +5,7 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
 const BadRequest = require('../errors/badRequest');
 const ExistEmail = require('../errors/existEmail');
+const NoExistEmail = require('../errors/NoExist');
 
 const {
   ERROR_MESSAGE,
@@ -31,7 +32,7 @@ const createUser = (req, res, next) => {
       const newUser = {
         _id: user._id,
         name: user.name,
-        abour: user.about,
+        about: user.about,
         avatar: user.avatar,
         email: user.email,
       };
@@ -39,10 +40,10 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.code === 11000) {
-        return next(new ExistEmail(ERROR_MESSAGE.EXIST_EMAIL)); //
+        return next(new ExistEmail(ERROR_MESSAGE.EXIST_EMAIL));
       }
-      if (err instanceof mongoose.Error.ValidationError) {
-        return next(new BadRequest(ERROR_MESSAGE.CREATE_USER_ERROR));
+      if (err instanceof mongoose.Error.CastError) {
+        return next(new BadRequest(ERROR_MESSAGE.PATCH_BAD_REQUEST));
       }
       return next(err);
     });
@@ -116,12 +117,12 @@ const login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new BadRequest(ERROR_MESSAGE.ERROR_LOGIN_OR_PASS);
+        throw new NoExistEmail(ERROR_MESSAGE.ERROR_LOGIN_OR_PASS);
       }
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            throw new BadRequest(ERROR_MESSAGE.ERROR_LOGIN_OR_PASS);
+            throw new NoExistEmail(ERROR_MESSAGE.ERROR_LOGIN_OR_PASS);
           }
           const token = jwt.sign({ _id: User._id }, 'some-secret-key', { expiresIn: '7d' });
           res.cookie('jwt', token, {
@@ -129,7 +130,7 @@ const login = (req, res, next) => {
             httpOnly: true,
             sameSite: true,
           })
-            .send({ token });
+            .send({ token: token });
         });
     })
     .catch(next);
