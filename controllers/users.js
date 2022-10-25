@@ -139,14 +139,6 @@ const login = (req, res, next) => {
 const currentUser = (req, res, next) => {
   User.findById(
     req.user._id,
-    {
-      name: req.body.name,
-      about: req.body.about,
-    },
-    {
-      new: true,
-      runValidators: true,
-    },
   ).orFail(new NotFoundError('NotFound'))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
