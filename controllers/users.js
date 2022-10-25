@@ -2,23 +2,22 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const NotFoundError = require('../errors/not-found-err');
+const BadRequest = require('../errors/badRequest');
 
 const {
-  NOT_FOUND,
-  BAD_REQUEST,
-  SERVER_ERROR,
   ERROR_MESSAGE,
 } = require('../utils/constants');
 
-const getUser = (req, res) => {
+const getUser = (req, res, next) => {
   User.find({})
     .then((users) => {
       res.send({ data: users });
     })
-    .catch(() => res.status(SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR }));
+    .catch(next);
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   bcrypt.hash(req.body.password, 10)
     .then((hash) => User.create({
       about: req.body.about,
@@ -30,29 +29,29 @@ const createUser = (req, res) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.CREATE_USER_ERROR });
+        return next(new BadRequest(ERROR_MESSAGE.CREATE_USER_ERROR));
       }
-      return res.status(SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
+      return next(err);
     });
 };
 
-const getUserById = (req, res) => {
-  User.findById(req.params.userId).orFail(new Error('NotFound'))
+const getUserById = (req, res, next) => {
+  User.findById(req.params.userId).orFail(new NotFoundError('NotFound'))
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.PATCH_BAD_REQUEST });
+        return next(new BadRequest(ERROR_MESSAGE.PATCH_BAD_REQUEST));
       }
       if (err.message === 'NotFound') {
-        return res.status(NOT_FOUND).send({ message: ERROR_MESSAGE.NOT_FOUND_USERID });
+        return next(new NotFoundError(ERROR_MESSAGE.NOT_FOUND_USERID));
       }
-      return res.status(SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
+      return next(err);
     });
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   User.findByIdAndUpdate(
     req.user._id,
     {
@@ -63,20 +62,20 @@ const updateUser = (req, res) => {
       new: true,
       runValidators: true,
     },
-  ).orFail(new Error('NotFound'))
+  ).orFail(new NotFoundError('NotFound'))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.PATCH_BAD_REQUEST });
+        return next(new BadRequest(ERROR_MESSAGE.PATCH_BAD_REQUEST));
       }
       if (err.message === 'NotFound') {
-        return res.status(NOT_FOUND).send({ message: ERROR_MESSAGE.NOT_FOUND_USERID });
+        return next(new NotFoundError(ERROR_MESSAGE.NOT_FOUND_USERID));
       }
-      return res.status(SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
+      return next(err);
     });
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   User.findByIdAndUpdate(
     req.user._id,
     {
@@ -86,42 +85,38 @@ const updateAvatar = (req, res) => {
       new: true,
       runValidators: true,
     },
-  ).orFail(new Error('NotFound'))
+  ).orFail(new NotFoundError('NotFound'))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.PATCH_BAD_REQUEST });
+        return next(new BadRequest(ERROR_MESSAGE.PATCH_BAD_REQUEST));
       }
       if (err.message === 'NotFound') {
-        return res.status(NOT_FOUND).send({ message: ERROR_MESSAGE.GET_NOT_FOUND });
+        return next(new NotFoundError(ERROR_MESSAGE.GET_NOT_FOUND));
       }
-      return res.status(SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
+      return next(err);
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Error('Неправильные почта или пароль'));
+        throw new BadRequest(ERROR_MESSAGE.ERROR_LOGIN_OR_PASS);
       }
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            return Promise.reject(new Error('Неправильные почта или пароль'));
+            throw new BadRequest(ERROR_MESSAGE.ERROR_LOGIN_OR_PASS);
           }
           return res.send({ token: jwt.sign({ _id: User._id }, 'some-secret-key', { expiresIn: '7d' }) });
         });
     })
-    .catch((err) => {
-      res
-        .status(401)
-        .send({ message: err.message });
-    });
+    .catch(next);
 };
 
-const currentUser = (req, res) => {
+const currentUser = (req, res, next) => {
   User.findById(
     req.user._id,
     {
@@ -132,16 +127,16 @@ const currentUser = (req, res) => {
       new: true,
       runValidators: true,
     },
-  ).orFail(new Error('NotFound'))
+  ).orFail(new NotFoundError('NotFound'))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.PATCH_BAD_REQUEST });
+        return next(new BadRequest(ERROR_MESSAGE.PATCH_BAD_REQUEST));
       }
       if (err.message === 'NotFound') {
-        return res.status(NOT_FOUND).send({ message: ERROR_MESSAGE.NOT_FOUND_USERID });
+        return next(new NotFoundError(ERROR_MESSAGE.NOT_FOUND_USERID));
       }
-      return res.status(SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
+      return next(err);
     });
 };
 

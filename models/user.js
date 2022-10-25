@@ -22,8 +22,8 @@ const userSchema = new Schema({
   },
   email: {
     type: String,
+    unique: true,
     required: true,
-    unuque: true,
     validate: {
       validator: (v) => isEmail(v),
       message: 'Неправильный формат почты',

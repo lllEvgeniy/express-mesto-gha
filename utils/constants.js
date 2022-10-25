@@ -10,6 +10,7 @@ const ERROR_MESSAGE = {
   NOT_FOUND_CARDSID: 'Карточка по данному _id не найдена',
   INCORRECT_CARDSID: 'Передан некорректный id карточки',
   LIKE_CARDID_DATA_ERROR: 'Переданы некорректные данные в методы постановки или снятия лайка',
+  ERROR_LOGIN_OR_PASS: 'Неправильные почта или пароль',
 };
 
 module.exports = {
