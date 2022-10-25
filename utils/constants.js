@@ -11,6 +11,7 @@ const ERROR_MESSAGE = {
   INCORRECT_CARDSID: 'Передан некорректный id карточки',
   LIKE_CARDID_DATA_ERROR: 'Переданы некорректные данные в методы постановки или снятия лайка',
   ERROR_LOGIN_OR_PASS: 'Неправильные почта или пароль',
+  EXIST_EMAIL: 'Данный email уже зарегистрирован',
 };
 
 module.exports = {

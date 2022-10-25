@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
 const BadRequest = require('../errors/badRequest');
+const ExistEmail = require('../errors/existEmail');
 
 const {
   ERROR_MESSAGE,
@@ -18,7 +19,7 @@ const getUser = (req, res, next) => {
 };
 
 const createUser = (req, res, next) => {
-  bcrypt.hash(req.body.password, 7)
+  bcrypt.hash(req.body.password, 10)
     .then((hash) => User.create({
       about: req.body.about,
       name: req.body.name,
@@ -26,8 +27,20 @@ const createUser = (req, res, next) => {
       email: req.body.email,
       password: hash,
     }))
-    .then((user) => res.send(user))
+    .then((user) => {
+      const newUser = {
+        _id: user._id,
+        name: user.name,
+        abour: user.about,
+        avatar: user.avatar,
+        email: user.email,
+      };
+      res.send(newUser);
+    })
     .catch((err) => {
+      if (err.code === 11000) {
+        return next(new ExistEmail(ERROR_MESSAGE.EXIST_EMAIL)); //
+      }
       if (err instanceof mongoose.Error.ValidationError) {
         return next(new BadRequest(ERROR_MESSAGE.CREATE_USER_ERROR));
       }
@@ -110,7 +123,13 @@ const login = (req, res, next) => {
           if (!matched) {
             throw new BadRequest(ERROR_MESSAGE.ERROR_LOGIN_OR_PASS);
           }
-          return res.send({ token: jwt.sign({ _id: User._id }, 'some-secret-key', { expiresIn: '7d' }) });
+          const token = jwt.sign({ _id: User._id }, 'some-secret-key', { expiresIn: '7d' });
+          res.cookie('jwt', token, {
+            maxAge: 3600000 * 12 * 7,
+            httpOnly: true,
+            sameSite: true,
+          })
+            .send({ token });
         });
     })
     .catch(next);
