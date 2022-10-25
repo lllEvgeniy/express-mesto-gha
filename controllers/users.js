@@ -114,7 +114,7 @@ const updateAvatar = (req, res, next) => {
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
-  User.findOne({ email }).select('+password')
+  User.findUserByCredentials({ email }).select('+password')
     .then((user) => {
       if (!user) {
         throw new NoExistEmail(ERROR_MESSAGE.ERROR_LOGIN_OR_PASS);
