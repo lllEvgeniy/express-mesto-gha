@@ -124,7 +124,7 @@ const login = (req, res, next) => {
           if (!matched) {
             throw new NoExistEmail(ERROR_MESSAGE.ERROR_LOGIN_OR_PASS);
           }
-          const token = jwt.sign({ _id: User._id }, 'some-secret-key', { expiresIn: '7d' });
+          const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
           res.cookie('jwt', token, {
             maxAge: 3600000 * 12 * 7,
             httpOnly: true,
