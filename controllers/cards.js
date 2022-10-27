@@ -1,7 +1,6 @@
 const Card = require('../models/card');
 const BadRequest = require('../errors/BadRequest');
 const NotFoundError = require('../errors/Not-found-err');
-
 const {
   ERROR_MESSAGE,
 } = require('../utils/constants');
