@@ -40,12 +40,12 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.code === 11000) {
-        next(new ExistEmail(ERROR_MESSAGE.EXIST_EMAIL));
+        return next(new ExistEmail(ERROR_MESSAGE.EXIST_EMAIL));
       }
       if ((err.name === 'ValidationError')) {
-        next(new BadRequest(ERROR_MESSAGE.PATCH_BAD_REQUEST));
+        return next(new BadRequest(ERROR_MESSAGE.PATCH_BAD_REQUEST));
       }
-      next(err);
+      return next(err);
     });
 };
 

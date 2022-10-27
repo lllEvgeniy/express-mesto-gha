@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Card = require('../models/card');
 const BadRequest = require('../errors/BadRequest');
 const NotFoundError = require('../errors/Not-found-err');
@@ -14,7 +15,7 @@ const createCards = (req, res, next) => {
       res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.CastError) {
         return next(new BadRequest(ERROR_MESSAGE.CREATE_CARDS_ERROR));
       }
       return next(err);
@@ -30,7 +31,7 @@ const getCards = (req, res, next) => {
 };
 
 const deleteCardById = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardId)
+  Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
         throw new NotFoundError(ERROR_MESSAGE.NOT_FOUND_CARDSID);
@@ -38,10 +39,11 @@ const deleteCardById = (req, res, next) => {
       if (card.owner.toString() !== req.user._id) {
         throw new ImpossibleDelete(ERROR_MESSAGE.IMPOSSIBLE_TO_DEL);
       }
-      return res.send({ data: card });
+      return Card.findByIdAndRemove(req.params.cardId)
+        .then((removeCard) => res.send(removeCard));
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.CastError) {
         return next(new BadRequest(ERROR_MESSAGE.INCORRECT_CARDSID));
       }
       return next(err);
@@ -60,7 +62,7 @@ const likeCard = (req, res, next) => Card.findByIdAndUpdate(
     return res.send({ data: card });
   })
   .catch((err) => {
-    if (err.name === 'ValidationError') {
+    if (err instanceof mongoose.Error.CastError) {
       return next(new BadRequest(ERROR_MESSAGE.LIKE_CARDID_DATA_ERROR));
     }
     return next(err);
@@ -78,7 +80,7 @@ const dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
     return res.send({ data: card });
   })
   .catch((err) => {
-    if (err.name === 'ValidationError') {
+    if (err instanceof mongoose.Error.CastError) {
       return next(new BadRequest(ERROR_MESSAGE.LIKE_CARDID_DATA_ERROR));
     }
     return next(err);
