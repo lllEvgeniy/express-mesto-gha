@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const NotFoundError = require('../errors/not-found-err');
-const BadRequest = require('../errors/badRequest');
-const ExistEmail = require('../errors/existEmail');
-const NoExist = require('../errors/noExist');
+const NotFoundError = require('../errors/Not-found-err');
+const BadRequest = require('../errors/BadRequest');
+const ExistEmail = require('../errors/ExistEmail');
+const NoExist = require('../errors/NoExist');
 
 const {
   ERROR_MESSAGE,
