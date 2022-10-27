@@ -1,6 +1,7 @@
 const Card = require('../models/card');
 const BadRequest = require('../errors/BadRequest');
 const NotFoundError = require('../errors/Not-found-err');
+const ImpossibleDelete = require('../errors/Impossible-to-delete');
 const {
   ERROR_MESSAGE,
 } = require('../utils/constants');
@@ -33,6 +34,9 @@ const deleteCardById = (req, res, next) => {
     .then((card) => {
       if (!card) {
         throw new NotFoundError(ERROR_MESSAGE.NOT_FOUND_CARDSID);
+      }
+      if (card.owner.toString() !== req.user._id) {
+        throw new ImpossibleDelete(ERROR_MESSAGE.IMPOSSIBLE_TO_DEL);
       }
       return res.send({ data: card });
     })

@@ -12,6 +12,7 @@ const ERROR_MESSAGE = {
   LIKE_CARDID_DATA_ERROR: 'Переданы некорректные данные в методы постановки или снятия лайка',
   ERROR_LOGIN_OR_PASS: 'Неправильные почта или пароль',
   EXIST_EMAIL: 'Данный email уже зарегистрирован',
+  IMPOSSIBLE_TO_DEL: 'Невозможно удалить',
 };
 
 module.exports = {
