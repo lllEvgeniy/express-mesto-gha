@@ -5,8 +5,7 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
 const BadRequest = require('../errors/badRequest');
 const ExistEmail = require('../errors/existEmail');
-
-const NoExistEmail = require('../errors/noExist');
+const NoExist = require('../errors/noExist');
 
 const {
   ERROR_MESSAGE,
@@ -118,12 +117,12 @@ const login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new NoExistEmail(ERROR_MESSAGE.ERROR_LOGIN_OR_PASS);
+        throw new NoExist(ERROR_MESSAGE.ERROR_LOGIN_OR_PASS);
       }
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            throw new NoExistEmail(ERROR_MESSAGE.ERROR_LOGIN_OR_PASS);
+            throw new NoExist(ERROR_MESSAGE.ERROR_LOGIN_OR_PASS);
           }
           const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
           res.cookie('jwt', token, {
