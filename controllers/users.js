@@ -5,6 +5,7 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
 const BadRequest = require('../errors/badRequest');
 const ExistEmail = require('../errors/existEmail');
+
 const NoExistEmail = require('../errors/noExist');
 
 const {
