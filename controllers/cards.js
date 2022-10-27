@@ -1,100 +1,84 @@
-const mongoose = require('mongoose');
 const Card = require('../models/card');
+const BadRequest = require('../errors/BadRequest');
+const NotFoundError = require('../errors/Not-found-err');
 
 const {
-  NOT_FOUND,
-  BAD_REQUEST,
-  SERVER_ERROR,
   ERROR_MESSAGE,
 } = require('../utils/constants');
 
-const createCards = (req, res) => {
+const createCards = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
-
   Card.create({ name, link, owner })
     .then((card) => {
-      res.status(201).send({ data: card });
+      res.send({ data: card });
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.CREATE_CARDS_ERROR });
+      if (err.name === 'ValidationError') {
+        return next(new BadRequest(ERROR_MESSAGE.CREATE_CARDS_ERROR));
       }
-      return res.status(SERVER_ERROR).send({
-        message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR,
-      });
+      return next(err);
     });
 };
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => {
       res.send({ data: cards });
     })
-    .catch(() => {
-      res.status(SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
-    });
+    .catch((err) => next(err));
 };
 
-const deleteCardById = (req, res) => {
+const deleteCardById = (req, res, next) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
       if (!card) {
-        return res.status(NOT_FOUND).send({ message: ERROR_MESSAGE.NOT_FOUND_CARDSID });
+        throw new NotFoundError(ERROR_MESSAGE.NOT_FOUND_CARDSID);
       }
       return res.send({ data: card });
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.INCORRECT_CARDSID });
+      if (err.name === 'ValidationError') {
+        return next(new BadRequest(ERROR_MESSAGE.INCORRECT_CARDSID));
       }
-      return res.status(SERVER_ERROR)
-        .send({
-          message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR,
-        });
+      return next(err);
     });
 };
 
-const likeCard = (req, res) => Card.findByIdAndUpdate(
+const likeCard = (req, res, next) => Card.findByIdAndUpdate(
   req.params.cardId,
   { $addToSet: { likes: req.user._id } },
   { new: true },
 )
   .then((card) => {
     if (!card) {
-      return res.status(NOT_FOUND).send({ message: ERROR_MESSAGE.NOT_FOUND_CARDSID });
+      throw new NotFoundError(ERROR_MESSAGE.NOT_FOUND_CARDSID);
     }
     return res.send({ data: card });
   })
   .catch((err) => {
     if (err.name === 'ValidationError') {
-      return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.LIKE_CARDID_DATA_ERROR });
+      return next(new BadRequest(ERROR_MESSAGE.LIKE_CARDID_DATA_ERROR));
     }
-    if (err instanceof mongoose.Error.CastError) {
-      return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.LIKE_CARDID_DATA_ERROR });
-    }
-    return res.status(SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
+    return next(err);
   });
 
-const dislikeCard = (req, res) => Card.findByIdAndUpdate(
+const dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
   req.params.cardId,
   { $pull: { likes: req.user._id } },
   { new: true },
 )
   .then((card) => {
     if (!card) {
-      return res.status(NOT_FOUND).send({ message: ERROR_MESSAGE.NOT_FOUND_CARDSID });
+      throw new NotFoundError(ERROR_MESSAGE.NOT_FOUND_CARDSID);
     }
     return res.send({ data: card });
   })
   .catch((err) => {
     if (err.name === 'ValidationError') {
-      return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.LIKE_CARDID_DATA_ERROR });
+      return next(new BadRequest(ERROR_MESSAGE.LIKE_CARDID_DATA_ERROR));
     }
-    if (err instanceof mongoose.Error.CastError) {
-      return res.status(BAD_REQUEST).send({ message: ERROR_MESSAGE.LIKE_CARDID_DATA_ERROR });
-    }
-    return res.status(SERVER_ERROR).send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
+    return next(err);
   });
 
 module.exports = {

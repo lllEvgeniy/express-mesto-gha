@@ -1,6 +1,8 @@
 const { errors, celebrate, Joi } = require('celebrate');
 const express = require('express');
 const mongoose = require('mongoose');
+const cookieParser = require('cookie-parser');
+const auth = require('./middlewares/auth');
 
 const { createUser, login } = require('./controllers/users');
 
@@ -9,10 +11,10 @@ mongoose.connect(MONGO_URL);
 const app = express();
 
 app.use(express.json());
-app.disable('x-powered-by');
+app.use(cookieParser());
 
-app.use('/users', require('./routes/users'));
-app.use('/cards', require('./routes/cards'));
+app.use(express.json());
+app.disable('x-powered-by');
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
@@ -30,6 +32,10 @@ app.post('/signup', celebrate({
     about: Joi.string().min(2).max(30),
   }).unknown(true),
 }), createUser);
+
+app.use(auth);
+app.use('/users', require('./routes/users'));
+app.use('/cards', require('./routes/cards'));
 
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Не найдено' });
