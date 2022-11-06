@@ -1,9 +1,12 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const {
-  createCards, getCards, deleteCardById, likeCard, dislikeCard,
+  createCards,
+  getCards, deleteCardById, likeCard, dislikeCard,
 } = require('../controllers/cards');
+const auth = require('../middlewares/auth');
 
+router.use(auth);
 router.post('/', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),

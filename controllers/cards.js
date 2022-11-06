@@ -7,27 +7,25 @@ const {
   ERROR_MESSAGE,
 } = require('../utils/constants');
 
+const getCards = (req, res, next) => {
+  Card.find({})
+    .then((cards) => res.send(cards))
+    .catch((err) => {
+      next(err);
+    });
+};
+
 const createCards = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
-    .then((card) => {
-      res.send({ data: card });
-    })
+    .then((card) => res.send(card))
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         return next(new BadRequest(ERROR_MESSAGE.CREATE_CARDS_ERROR));
       }
       return next(err);
     });
-};
-
-const getCards = (req, res, next) => {
-  Card.find({})
-    .then((cards) => {
-      res.send({ data: cards });
-    })
-    .catch((err) => next(err));
 };
 
 const deleteCardById = (req, res, next) => {

@@ -1,5 +1,24 @@
+#  *** Проект Mesto фронтенд + бэкенд***
+
+## Сайт - интерактивная страница, куда можно добавлять фотографии, удалять их, ставить лайки, редактировать профиль.
+
+___
+### **Тут используются технологии:**
++ ***Flex-box***
++ ***Grid Layout***
++ ***БЭМ Nested***
++ ***Адаптивная верстка***
++ ***React***
++ ***UseState***
++ ***UseEffect***
+___
+
+## Cсылка на проект: **https://mesto-reactt.vercel.app/**
+
+
+
 [![Tests](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-13-sprint.yml/badge.svg)](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-13-sprint.yml) [![Tests](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-14-sprint.yml/badge.svg)](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-14-sprint.yml)
-# Проект Mesto фронтенд + бэкенд
+
 
 
 

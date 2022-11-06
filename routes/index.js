@@ -1,6 +1,5 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
-const auth = require('../middlewares/auth');
 const NotFoundError = require('../errors/Not-found-err');
 const { createUser, login } = require('../controllers/users');
 
@@ -20,8 +19,6 @@ router.post('/signup', celebrate({
     about: Joi.string().min(2).max(30),
   }),
 }), createUser);
-
-router.use(auth);
 
 router.use('/users', require('./users'));
 router.use('/cards', require('./cards'));
