@@ -15,3 +15,6 @@ node_modules
 .vscode
 *.log
 .env
+error.log
+request.log
+.vscode
